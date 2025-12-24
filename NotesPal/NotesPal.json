@@ -1,0 +1,14 @@
+{
+  "Author": "Waitsnake",
+  "Name": "NotesPal",
+  "InternalName": "NotesPal",
+  "Punchline": "Help you remember people in game!",
+  "Description": "Make text notes ifor other players e.g. to remind you where you meet them in game.",
+  "ApplicableVersion": "any",
+  "Changelog": "Initial version",
+  "Tags": [
+    "plugin",
+    "notes",
+    "players"
+  ]
+}
