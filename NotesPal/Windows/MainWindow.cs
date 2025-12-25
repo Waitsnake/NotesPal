@@ -32,7 +32,7 @@ namespace NotesPal.Windows
         private readonly FileDialogManager fileDialog = new();
         private bool showDeleteAllConfirmation = false;
 
-        private MainWindow() : base("NotesPal v{Plugin.Version}", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize)
+        private MainWindow() : base($"NotesPal v{Plugin.Version}", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.AlwaysAutoResize)
         {
             Size = new System.Numerics.Vector2(600, 500);
         }
