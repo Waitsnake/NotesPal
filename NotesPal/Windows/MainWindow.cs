@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Numerics;
 using NotesPal.Data;
 
 namespace NotesPal.Windows
