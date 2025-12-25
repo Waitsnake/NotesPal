@@ -100,7 +100,6 @@ namespace NotesPal.Windows
             {
                 note.NoteText = noteText;
                 NoteDb.Upsert(note);
-                IsOpen = false;
 				
 				lastSaveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 

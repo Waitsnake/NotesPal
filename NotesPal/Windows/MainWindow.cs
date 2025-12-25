@@ -42,142 +42,157 @@ namespace NotesPal.Windows
             allNotes = NoteDb.GetAll().OrderBy(n => n.Name).ToList();
         }
 
-		public override void Draw()
-		{
-			// Import and Export buttons first
-			if (ImGui.Button("Import Notes"))
-			{
-				fileDialog.OpenFileDialog(
-					"Import Notes JSON",
-					"JSON files{.json},.*",
-					(ok, path) =>
-					{
-						if (ok && !string.IsNullOrEmpty(path))
-						{
-							try
-							{
-								var imported = JsonSerializer.Deserialize<List<NoteModel>>(File.ReadAllText(path));
-								if (imported != null)
-								{
-									foreach (var n in imported)
-										NoteDb.Upsert(n, updateTimestamp: false);
-									ReloadNotes();
-								}
-							}
-							catch (Exception ex)
-							{
-								Logger.Error($"Import failed: {ex}");
-							}
-						}
-					});
-			}
+        public override void Draw()
+        {
+            // Import and Export buttons first
+            if (ImGui.Button("Import Notes"))
+            {
+                fileDialog.OpenFileDialog(
+                    "Import Notes JSON",
+                    "JSON files{.json},.*",
+                    (ok, path) =>
+                    {
+                        if (ok && !string.IsNullOrEmpty(path))
+                        {
+                            try
+                            {
+                                var imported = JsonSerializer.Deserialize<List<NoteModel>>(File.ReadAllText(path));
+                                if (imported != null)
+                                {
+                                    foreach (var n in imported)
+                                        NoteDb.Upsert(n, updateTimestamp: false);
+                                    ReloadNotes();
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error($"Import failed: {ex}");
+                            }
+                        }
+                    });
+            }
 
-			ImGui.SameLine();
-			if (ImGui.Button("Export Notes"))
-			{
-				fileDialog.SaveFileDialog(
-					"Export Notes JSON",
-					"JSON files{.json},.*",
-					"notes_export.json",
-					"json",
-					(ok, path) =>
-					{
-						if (ok && !string.IsNullOrEmpty(path))
-						{
-							try
-							{
-								var json = JsonSerializer.Serialize(allNotes, new JsonSerializerOptions { WriteIndented = true });
-								File.WriteAllText(path, json);
-							}
-							catch (Exception ex)
-							{
-								Logger.Error($"Export failed: {ex}");
-							}
-						}
-					});
-			}
+            ImGui.SameLine();
+            if (ImGui.Button("Export Notes"))
+            {
+                fileDialog.SaveFileDialog(
+                    "Export Notes JSON",
+                    "JSON files{.json},.*",
+                    "notes_export.json",
+                    "json",
+                    (ok, path) =>
+                    {
+                        if (ok && !string.IsNullOrEmpty(path))
+                        {
+                            try
+                            {
+                                var json = JsonSerializer.Serialize(allNotes, new JsonSerializerOptions { WriteIndented = true });
+                                File.WriteAllText(path, json);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error($"Export failed: {ex}");
+                            }
+                        }
+                    });
+            }
 
             // Draw file dialog
             fileDialog.Draw();
 
-			ImGui.SameLine();
-			if (ImGui.Button("Delete All Notes"))
-			{
-				showDeleteAllConfirmation = true;
-			}
+            ImGui.SameLine();
 
-			// Delete All button confirmation
-			if (showDeleteAllConfirmation)
-			{
-				ImGui.OpenPopup("Confirm Delete All");
-				if (ImGui.BeginPopupModal("Confirm Delete All", ref showDeleteAllConfirmation, ImGuiWindowFlags.AlwaysAutoResize))
-				{
-					ImGui.Text("Are you sure you want to delete all notes? This action cannot be undone.");
-					ImGui.Separator();
 
-					if (ImGui.Button("Yes"))
-					{
-						NoteDb.DeleteAll();
-						allNotes.Clear();
-						showDeleteAllConfirmation = false;
-					}
+            var ctrlIsHeld = ImGui.IsKeyDown(ImGuiKey.LeftCtrl) || ImGui.IsKeyDown(ImGuiKey.RightCtrl);
+            if (!ctrlIsHeld)
+                ImGui.BeginDisabled();
+    
+            ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(1.0f, 0.2f, 0.2f, 1.0f)); // rot
+            if (ImGui.Button("Delete All Memos"))
+            {
+                showDeleteAllConfirmation = true; // bool-Flag um Bestätigungsdialog anzuzeigen
+            }
+            ImGui.PopStyleColor();
 
-					ImGui.SameLine();
-					if (ImGui.Button("No"))
-					{
-						showDeleteAllConfirmation = false;
-					}
+            if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+                ImGui.SetTooltip("Hold Ctrl to enable this button.");
 
-					ImGui.EndPopup();
-				}
-			}
+            if (!ctrlIsHeld)
+                ImGui.EndDisabled();
 
-			// Search box
-			ImGui.Separator(); // Optional: adds a separator for better visual separation
-			ImGui.Text("Search:");
-			ImGui.SameLine();
-			ImGui.InputText("##search", ref searchTerm, 64);
+            // Delete All button confirmation
+            if (showDeleteAllConfirmation)
+            {
+                ImGui.OpenPopup("Confirm Delete All");
+                if (ImGui.BeginPopupModal("Confirm Delete All", ref showDeleteAllConfirmation, ImGuiWindowFlags.AlwaysAutoResize))
+                {
+                    ImGui.Text("Are you sure you want to delete all notes? This action cannot be undone.");
+                    ImGui.Separator();
 
-			// Filter notes based on search term
-			var filtered = string.IsNullOrWhiteSpace(searchTerm)
-				? allNotes
-				: allNotes.Where(n => n.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-									  (n.NoteText?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true))
-						  .ToList();
+                    if (ImGui.Button("Yes"))
+                    {
+                        NoteDb.DeleteAll();
+                        allNotes.Clear();
+                        showDeleteAllConfirmation = false;
+                    }
 
-			// Display note list in a table
-			if (ImGui.BeginTable("noteTable", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
-			{
-				ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-				ImGui.TableSetupColumn("World", ImGuiTableColumnFlags.WidthFixed, 160); // Added column for World name
-				ImGui.TableSetupColumn("Last Modified", ImGuiTableColumnFlags.WidthFixed, 160);
-				ImGui.TableHeadersRow();
+                    ImGui.SameLine();
+                    if (ImGui.Button("No"))
+                    {
+                        showDeleteAllConfirmation = false;
+                    }
 
-				foreach (var note in filtered)
-				{
-					ImGui.TableNextRow();
+                    ImGui.EndPopup();
+                }
+            }
 
-					ImGui.TableSetColumnIndex(0);
-					if (ImGui.Selectable(note.Name, false))
-					{
-						// Open the note in editor
-						NoteEditor.OpenNote(note);
-					}
+            // Display total count of notes
+            ImGui.SameLine();
+            ImGui.Text($"Total Notes: {allNotes.Count}");
 
-					ImGui.TableSetColumnIndex(1);
-					ImGui.Text(WorldNames.GetWorldName(note.WorldId)); // Use the WorldNames.GetWorldName method
+            // Search box
+            ImGui.Separator(); // Optional: adds a separator for better visual separation
+            ImGui.Text("Search:");
+            ImGui.SameLine();
+            ImGui.InputText("##search", ref searchTerm, 64);
 
-					ImGui.TableSetColumnIndex(2);
-					ImGui.Text(note.LastModified.ToString("yyyy-MM-dd HH:mm"));
-				}
+            // Filter notes based on search term
+            var filtered = string.IsNullOrWhiteSpace(searchTerm)
+                ? allNotes
+                : allNotes.Where(n => n.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                      (n.NoteText?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true))
+                          .ToList();
 
-				ImGui.EndTable();
-			}
+            // Display note list in a table
+            if (ImGui.BeginTable("noteTable", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.Resizable))
+            {
+                ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("World", ImGuiTableColumnFlags.WidthFixed, 160); // Added column for World name
+                ImGui.TableSetupColumn("Last Modified", ImGuiTableColumnFlags.WidthFixed, 160);
+                ImGui.TableHeadersRow();
 
-			// Display total count of notes at the bottom
-			ImGui.Separator(); // Optional: adds a separator for visual separation
-			ImGui.Text($"Total Notes: {allNotes.Count}");
-		}
+                foreach (var note in filtered)
+                {
+                    ImGui.TableNextRow();
+
+                    ImGui.TableSetColumnIndex(0);
+                    if (ImGui.Selectable(note.Name, false))
+                    {
+                        // Open the note in editor
+                        NoteEditor.OpenNote(note);
+                    }
+
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text(WorldNames.GetWorldName(note.WorldId)); // Use the WorldNames.GetWorldName method
+
+                    ImGui.TableSetColumnIndex(2);
+                    ImGui.Text(note.LastModified.ToString("yyyy-MM-dd HH:mm"));
+                }
+
+                ImGui.EndTable();
+            }
+
+        }
 
 
 
