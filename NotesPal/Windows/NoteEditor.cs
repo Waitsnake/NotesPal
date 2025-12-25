@@ -44,7 +44,6 @@ namespace NotesPal.Windows
 
         public override void Draw()
         {
-            // Nullprüfung, bevor wir auf `note` zugreifen
             if (note == null) return;
 
             if (isFirstOpen)
@@ -55,7 +54,6 @@ namespace NotesPal.Windows
                 isFirstOpen = false;
             }
 
-            // Textanzeige: Sicherstellen, dass `note` nicht null ist, bevor auf `note.Name` zugegriffen wird
             ImGui.Text($"Editing Note: {note.Name}");
             ImGui.InputTextMultiline("##note-text", ref noteText, 1000, new System.Numerics.Vector2(800, 300));
 
@@ -98,7 +96,6 @@ namespace NotesPal.Windows
 
         private void SaveNote()
         {
-            // Nullprüfung und sichere Zuweisung von noteText
             if (note != null)
             {
                 note.NoteText = noteText;
@@ -106,16 +103,24 @@ namespace NotesPal.Windows
                 IsOpen = false;
 				
 				lastSaveTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+
+                if (MainWindow.Instance.IsOpen)
+                {
+                    MainWindow.Instance.ReloadNotes(); // Notizen im Hauptfenster neu laden
+                }
             }
         }
 
         private void DeleteNote()
         {
-            // Nullprüfung und sichere Löschung der Note
             if (note != null)
             {
                 NoteDb.Delete(note.Name, note.WorldId);
                 IsOpen = false;
+                if (MainWindow.Instance.IsOpen)
+                {
+                    MainWindow.Instance.ReloadNotes(); // Notizen im Hauptfenster neu laden
+                }
             }
         }
     }

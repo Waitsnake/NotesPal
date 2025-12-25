@@ -97,6 +97,9 @@ namespace NotesPal.Windows
 					});
 			}
 
+            // Draw file dialog
+            fileDialog.Draw();
+
 			ImGui.SameLine();
 			if (ImGui.Button("Delete All Notes"))
 			{
