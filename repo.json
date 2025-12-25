@@ -3,8 +3,8 @@
   "Author": "Waitsnake",
   "Name": "NotesPal",
   "InternalName": "NotesPal",
-  "Punchline": "Help you remember people in game!",
-  "Description": "Make text notes ifor other players e.g. to remind you where you meet them in game.",
+  "Punchline": "A tiny, boring, reliable notes plugin.",
+  "Description": "Make personal text notes for players you meet in game.",
   "ApplicableVersion": "any",
   "Changelog": "Initial version",
   "Tags": [
