@@ -1,4 +1,5 @@
-# NotesPal
+# NotesPal 
+A tiny, boring, reliable notes plugin.
 
 **NotesPal** is a Dalamud plugin that allows you to make notes on players you meet in-game. This way, you can store information about players and retrieve it later for reference.
 
