@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;
+using LiteDB;
+using System.Text.Json.Serialization;
 
 namespace NotesPal.Data
 {
     public class NoteModel
     {
-        public string Id => GetId(Name, WorldId);
+        [BsonId]
+        [JsonIgnore]
+        public ObjectId DbId { get; set; } = ObjectId.NewObjectId();
+        [BsonField("Id")]
+        public string LegacyId => GetId(Name, WorldId);
+
         public required string Name { get; set; }
         public required uint WorldId { get; set; }
         public string? NoteText { get; set; }

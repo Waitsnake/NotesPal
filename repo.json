@@ -6,7 +6,7 @@
   "Punchline": "A tiny, boring, reliable notes plugin.",
   "Description": "Make personal text notes for players you meet in game.\nRight-click on a player's name in the game and select 'New Note' to create a note or 'Open Note' to read a exsiting note.",
   "ApplicableVersion": "any",
-  "Changelog": "Initial version",
+  "Changelog": "New DB primary key DbId",
   "RepoUrl": "https://github.com/Waitsnake/NotesPal",
   "IconUrl": "https://raw.githubusercontent.com/Waitsnake/NotesPal/main/NotesPalIcon.png",
   "ImageUrls": [],
@@ -15,7 +15,7 @@
     "notes",
     "players"
   ],
-  "AssemblyVersion": "0.1.0",
-  "DownloadLinkInstall": "https://github.com/Waitsnake/NotesPal/releases/download/0.1.0/Release.zip"
+  "AssemblyVersion": "0.1.1",
+  "DownloadLinkInstall": "https://github.com/Waitsnake/NotesPal/releases/download/0.1.1/Release.zip"
 }
 ]

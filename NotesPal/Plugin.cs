@@ -13,7 +13,7 @@ namespace NotesPal;
 public class Plugin : IDalamudPlugin
 {
     public string Name => "NotesPal";
-    public const string Version = "0.1.0";
+    public const string Version = "0.1.1";
 
     [PluginService] public static IObjectTable ObjectCollection { get; private set; } = null!;
     [PluginService] public static IPluginLog PluginLog { get; set; } = null!;

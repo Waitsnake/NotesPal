@@ -17,16 +17,21 @@ namespace NotesPal.Data
 
         public static bool Exists(string name, uint worldId)
         {
+            var legacyId = NoteModel.GetId(name, worldId);
+
             using var db = new LiteDatabase(ConnectionString);
             var col = db.GetCollection<NoteModel>("notes");
-            return col.Exists(n => n.Id == NoteModel.GetId(name, worldId));
+
+            return col.Exists(n => n.LegacyId == legacyId);
         }
 
         public static NoteModel Get(string name, uint worldId)
         {
             using var db = new LiteDatabase(ConnectionString);
             var col = db.GetCollection<NoteModel>("notes");
-            return col.FindOne(n => n.Id == NoteModel.GetId(name, worldId)) ?? new NoteModel { Name = name, WorldId = worldId };
+            var legacyId = NoteModel.GetId(name, worldId);
+            var note = col.FindOne(n => n.LegacyId == legacyId);
+            return note ?? new NoteModel { Name = name, WorldId = worldId };
         }
 
         public static void Upsert(NoteModel noteModel, bool updateTimestamp = true)
@@ -37,14 +42,7 @@ namespace NotesPal.Data
             if (updateTimestamp)
                 noteModel.LastModified = DateTime.UtcNow;
 
-            if (Exists(noteModel.Name, noteModel.WorldId))
-            {
-                col.Update(noteModel);
-            }
-            else
-            {
-                col.Insert(noteModel);
-            }
+            col.Upsert(noteModel);
         }
 		
 		public static int Count()
@@ -63,9 +61,14 @@ namespace NotesPal.Data
 
         public static void Delete(string name, uint worldId)
         {
+            var legacyId = NoteModel.GetId(name, worldId);
+
             using var db = new LiteDatabase(ConnectionString);
             var col = db.GetCollection<NoteModel>("notes");
-            col.Delete(NoteModel.GetId(name, worldId));
+
+            var note = col.FindOne(n => n.LegacyId == legacyId);
+            if (note != null)
+                col.Delete(note.DbId);
         }
 
         public static void DeleteAll()
