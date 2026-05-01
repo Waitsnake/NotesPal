@@ -46,7 +46,7 @@ namespace NotesPal.Commands
             if (gameObject == null)
                 return false;
 
-            if (gameObject.ObjectKind != ObjectKind.Player)
+            if (gameObject.ObjectKind != ObjectKind.Pc)
                 return false;
 
             if (gameObject is IPlayerCharacter targetPlayer)
